@@ -1,4 +1,5 @@
 import type {
+  AgentLoopEvent,
   AssistantMessage,
   ChatMessage,
   Harness,
@@ -15,6 +16,7 @@ export async function runAgentLoop(
 ): Promise<RunAgentLoopResult> {
   const maxSteps = harness.options.maxSteps ?? 8;
   const toolResultMaxBytes = harness.options.toolResultMaxBytes ?? 8192;
+  const onEvent = loopOptions.onEvent;
 
   const messages: ChatMessage[] = [...loopOptions.messages];
   if (loopOptions.systemMessage) {
@@ -26,6 +28,13 @@ export async function runAgentLoop(
 
   while (steps < maxSteps) {
     steps += 1;
+    await emit(onEvent, {
+      type: 'step',
+      step: steps,
+      maxSteps,
+      messages: [...messages],
+    });
+
     const { message } = await harness.options.callModel({
       messages,
       tools: harness.apiTools,
@@ -39,6 +48,11 @@ export async function runAgentLoop(
       ...(message.tool_calls?.length ? { tool_calls: message.tool_calls } : {}),
     };
     messages.push(assistantMessage);
+    await emit(onEvent, {
+      type: 'assistant',
+      step: steps,
+      message: assistantMessage,
+    });
 
     const toolCalls = message.tool_calls ?? [];
     if (toolCalls.length === 0) {
@@ -53,10 +67,33 @@ export async function runAgentLoop(
         toolResultMaxBytes,
       );
       messages.push(toolMessage);
+      await emit(onEvent, {
+        type: 'tool',
+        step: steps,
+        toolCall,
+        message: toolMessage,
+      });
     }
   }
 
-  return { messages, steps, stopReason };
+  const result: RunAgentLoopResult = { messages, steps, stopReason };
+  await emit(onEvent, {
+    type: 'done',
+    steps,
+    stopReason,
+    messages: [...messages],
+  });
+  return result;
+}
+
+async function emit(
+  onEvent: RunAgentLoopOptions['onEvent'],
+  event: AgentLoopEvent,
+): Promise<void> {
+  if (!onEvent) {
+    return;
+  }
+  await onEvent(event);
 }
 
 async function runSingleToolCall(

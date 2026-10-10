@@ -15,7 +15,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "bun test",
-    "example": "bun examples/minimal-bun/run.ts"
+    "example": "bun examples/minimal-bun/run.ts",
+    "build": "bun build ./src/index.ts --outfile=dist/bubble-harness.js --format=esm --target=browser"
   },
   "keywords": [
     "agent",

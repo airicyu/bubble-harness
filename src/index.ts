@@ -21,6 +21,8 @@ export { SYSTEM_TOOL_NAMES, buildSystemToolDefinitions } from './tools/schemas.t
 export { isUrlAllowed } from './tools/system.ts';
 
 export type {
+  AgentLoopEvent,
+  AgentLoopEventHandler,
   AgentStopReason,
   AssistantMessage,
   CallModelFn,

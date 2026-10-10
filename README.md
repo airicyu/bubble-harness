@@ -4,7 +4,7 @@
 
 bubble-harness 是一個簡潔的 agent 執行框架，專為無法存取檔案系統、shell 或 stdio MCP 的 JavaScript 環境（例如 Chrome extension sandbox）設計。它採用 pi-agent 風格的簡單迴圈，提供最小但足夠的工具介面。
 
-本倉庫 **只用 Bun**：套件管理、測試、範例皆直接跑 TypeScript 源碼，沒有 `dist/` 編譯步驟，也不使用 npm／Node CLI。
+本倉庫 **只用 Bun**：套件管理、測試、範例皆直接跑 TypeScript 源碼，也不使用 npm／Node CLI。開發與測試以 `src/` 為準；若要嵌進其他專案或 sandbox，可選打成單檔 ESM。
 
 ## 非目標
 
@@ -27,6 +27,7 @@ bun install
 bun run typecheck
 bun test
 bun run example
+bun run build   # 可選：產出 dist/bubble-harness.js
 ```
 
 其他專案安裝：
@@ -36,6 +37,20 @@ bun add bubble-harness
 ```
 
 套件入口為 `src/index.ts`。Host 負責注入 KV store、在隔離環境初始化 harness，並確保 harness 無法存取 vault。
+
+### 單檔 bundle（可選）
+
+```bash
+bun run build
+```
+
+產出 `dist/bubble-harness.js`（ESM、`--target=browser`，約 21 KB，gitignored）。可直接 copy 到其他專案：
+
+```js
+import { createHarness, runAgentLoop } from './vendor/bubble-harness.js';
+```
+
+型別仍以本倉庫 `src/index.ts` 為準；單檔本身不含 `.d.ts`。
 
 ## Roadmap 與開發節奏
 

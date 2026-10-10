@@ -117,11 +117,49 @@ export interface Harness {
 
 export type AgentStopReason = 'completed' | 'max_steps';
 
+/**
+ * Observability events for a single `runAgentLoop` invocation.
+ * Default: no events. Host decides whether to log / redact / ignore payloads.
+ * OpenRouter / host API keys are never fields on these events (they stay in
+ * the host `callModel` closure).
+ */
+export type AgentLoopEvent =
+  | {
+      type: 'step';
+      step: number;
+      maxSteps: number;
+      /** Messages about to be sent to `callModel` (shallow copy). */
+      messages: ChatMessage[];
+    }
+  | {
+      type: 'assistant';
+      step: number;
+      message: AssistantMessage;
+    }
+  | {
+      type: 'tool';
+      step: number;
+      toolCall: ToolCall;
+      message: ToolMessage;
+    }
+  | {
+      type: 'done';
+      steps: number;
+      stopReason: AgentStopReason;
+      messages: ChatMessage[];
+    };
+
+export type AgentLoopEventHandler = (
+  event: AgentLoopEvent,
+) => void | Promise<void>;
+
 export interface RunAgentLoopOptions {
   messages: ChatMessage[];
   systemMessage?: string;
   temperature?: number;
   maxTokens?: number;
+  /** Optional; omitted means silent. Library never writes to console. */
+  onEvent?: AgentLoopEventHandler;
 }
 
 export interface RunAgentLoopResult {

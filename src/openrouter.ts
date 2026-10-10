@@ -25,9 +25,15 @@ interface OpenRouterChatCompletionResponse {
   error?: { message?: string };
 }
 
+/**
+ * Builds a `CallModelFn`. The API key stays in this closure for the
+ * Authorization header only — it is never returned, never placed on
+ * `AgentLoopEvent`, and never included in thrown Error messages.
+ */
 export function createOpenRouterCallModel(options: OpenRouterCallModelOptions): CallModelFn {
   const baseUrl = (options.baseUrl ?? 'https://openrouter.ai/api/v1').replace(/\/$/, '');
   const fetchFn = options.fetchImpl ?? fetch;
+  const apiKey = options.apiKey;
 
   return async (req) => {
     const body = {
@@ -39,7 +45,7 @@ export function createOpenRouterCallModel(options: OpenRouterCallModelOptions): 
     };
 
     const headers: Record<string, string> = {
-      Authorization: `Bearer ${options.apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     };
     if (options.referer) {

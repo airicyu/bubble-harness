@@ -66,7 +66,7 @@ Roadmap 文件、範例程式、測試案例 **禁止**包含：
 
 本專案目前為 0.2.0：最小 agent loop 與 sandbox JSON port 已可在 Bun 執行。
 
-- 開發／測試／範例只用 Bun，入口為 `src/index.ts`（無 `dist/`）
+- 開發／測試／範例只用 Bun，入口為 `src/index.ts`；可選 `bun run build` 產出 `dist/bubble-harness.js`（嵌套／copy 用，不進 git）
 - Chrome sandbox 宿主適配仍延後
 
 Agent 在開工前應確認：

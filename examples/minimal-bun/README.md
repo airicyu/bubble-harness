@@ -23,4 +23,6 @@ bun examples/minimal-bun/run.ts
 bun examples/minimal-bun/run.ts --mock
 ```
 
+加 `--trace` 可經 `onEvent` 印出 step／assistant／tool（由 example 控制；API key 不會進事件）。
+
 Key 僅由 example 從 `Bun.env` 讀取並傳入 `createOpenRouterCallModel`；library 本身不讀 env。
