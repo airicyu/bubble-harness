@@ -17,6 +17,7 @@ export async function runAgentLoop(
   const maxSteps = harness.options.maxSteps ?? 8;
   const toolResultMaxBytes = harness.options.toolResultMaxBytes ?? 8192;
   const onEvent = loopOptions.onEvent;
+  const retryEmptyFinal = loopOptions.retryEmptyFinal === true;
 
   const messages: ChatMessage[] = [...loopOptions.messages];
   if (loopOptions.systemMessage) {
@@ -25,6 +26,7 @@ export async function runAgentLoop(
 
   let steps = 0;
   let stopReason: RunAgentLoopResult['stopReason'] = 'max_steps';
+  let emptyFinalRetried = false;
 
   while (steps < maxSteps) {
     steps += 1;
@@ -56,7 +58,28 @@ export async function runAgentLoop(
 
     const toolCalls = message.tool_calls ?? [];
     if (toolCalls.length === 0) {
-      stopReason = 'completed';
+      if (!isBlankContent(assistantMessage.content)) {
+        stopReason = 'completed';
+        break;
+      }
+
+      if (retryEmptyFinal && !emptyFinalRetried) {
+        emptyFinalRetried = true;
+        const nudgeText = loopOptions.emptyFinalUserMessage?.trim();
+        if (nudgeText) {
+          const nudgeMessage = { role: 'user' as const, content: nudgeText };
+          messages.push(nudgeMessage);
+          await emit(onEvent, {
+            type: 'nudge',
+            step: steps,
+            reason: 'empty_final',
+            message: nudgeMessage,
+          });
+        }
+        continue;
+      }
+
+      stopReason = 'empty_final';
       break;
     }
 
@@ -76,14 +99,35 @@ export async function runAgentLoop(
     }
   }
 
-  const result: RunAgentLoopResult = { messages, steps, stopReason };
+  const finalText = extractFinalText(messages);
+  const result: RunAgentLoopResult = { messages, steps, stopReason, finalText };
   await emit(onEvent, {
     type: 'done',
     steps,
     stopReason,
+    finalText,
     messages: [...messages],
   });
   return result;
+}
+
+/** Last assistant content without `tool_calls` (trimmed); else "". */
+export function extractFinalText(messages: ChatMessage[]): string {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (message?.role !== 'assistant') {
+      continue;
+    }
+    if (message.tool_calls?.length) {
+      continue;
+    }
+    return (message.content ?? '').trim();
+  }
+  return '';
+}
+
+function isBlankContent(content: string | null | undefined): boolean {
+  return (content ?? '').trim().length === 0;
 }
 
 async function emit(

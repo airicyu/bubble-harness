@@ -12,7 +12,7 @@ import {
   createOpenRouterCallModel,
   runAgentLoop,
 } from '../../src/index.ts';
-import type { AgentLoopEvent, CallModelFn, ChatMessage } from '../../src/index.ts';
+import type { AgentLoopEvent, CallModelFn } from '../../src/index.ts';
 
 const mock = Bun.argv.includes('--mock');
 const trace = Bun.argv.includes('--trace');
@@ -60,7 +60,7 @@ const result = await runAgentLoop(harness, {
 
 console.log('stopReason:', result.stopReason);
 console.log('steps:', result.steps);
-console.log('final assistant:', findLastAssistantContent(result.messages));
+console.log('finalText:', result.finalText);
 console.log('kv after run:', [...kv.entries()]);
 
 function traceEvent(event: AgentLoopEvent): void {
@@ -84,24 +84,21 @@ function traceEvent(event: AgentLoopEvent): void {
         result: event.message.content,
       });
       break;
+    case 'nudge':
+      console.log(`[trace] nudge @ step ${event.step}`, {
+        reason: event.reason,
+        content: event.message.content,
+      });
+      break;
     case 'done':
       console.log(`[trace] done`, {
         steps: event.steps,
         stopReason: event.stopReason,
+        finalText: event.finalText,
         messageCount: event.messages.length,
       });
       break;
   }
-}
-
-function findLastAssistantContent(messages: ChatMessage[]): string | null {
-  for (let i = messages.length - 1; i >= 0; i -= 1) {
-    const m = messages[i];
-    if (m?.role === 'assistant' && m.content) {
-      return m.content;
-    }
-  }
-  return null;
 }
 
 function createMockCallModel(): CallModelFn {

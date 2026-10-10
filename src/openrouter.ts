@@ -1,10 +1,15 @@
 import type { AssistantMessage, CallModelFn, ToolCall } from './types.ts';
 
+export type OpenRouterFetch = (
+  input: string,
+  init?: RequestInit,
+) => Promise<Response>;
+
 export interface OpenRouterCallModelOptions {
   apiKey: string;
   model: string;
   baseUrl?: string;
-  fetchImpl?: typeof fetch;
+  fetchImpl?: OpenRouterFetch;
   referer?: string;
   title?: string;
 }
@@ -13,7 +18,9 @@ interface OpenRouterChatCompletionResponse {
   choices?: Array<{
     message?: {
       role?: string;
-      content?: string | null;
+      content?: unknown;
+      reasoning_content?: unknown;
+      reasoning?: unknown;
       tool_calls?: Array<{
         id: string;
         type: string;
@@ -23,6 +30,54 @@ interface OpenRouterChatCompletionResponse {
     finish_reason?: string | null;
   }>;
   error?: { message?: string };
+}
+
+/**
+ * Coerce OpenRouter / reasoning-route assistant payloads into a host-visible
+ * string. Prefer `content` (string or content-part array); if empty, fall back
+ * to `reasoning_content` / `reasoning`. Whitespace-only → null.
+ */
+export function normalizeOpenRouterMessageContent(raw: {
+  content?: unknown;
+  reasoning_content?: unknown;
+  reasoning?: unknown;
+}): string | null {
+  const fromContent = coerceVisibleText(raw.content);
+  if (fromContent !== null) {
+    return fromContent;
+  }
+  return (
+    coerceVisibleText(raw.reasoning_content) ?? coerceVisibleText(raw.reasoning)
+  );
+}
+
+function coerceVisibleText(value: unknown): string | null {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  if (!Array.isArray(value)) {
+    return null;
+  }
+
+  const parts: string[] = [];
+  for (const part of value) {
+    if (typeof part === 'string') {
+      parts.push(part);
+      continue;
+    }
+    if (typeof part !== 'object' || part === null) {
+      continue;
+    }
+    const obj = part as Record<string, unknown>;
+    if (typeof obj.text === 'string') {
+      parts.push(obj.text);
+    } else if (typeof obj.content === 'string') {
+      parts.push(obj.content);
+    }
+  }
+  const joined = parts.join('').trim();
+  return joined.length > 0 ? joined : null;
 }
 
 /**
@@ -84,7 +139,7 @@ export function createOpenRouterCallModel(options: OpenRouterCallModelOptions): 
 
     const message: AssistantMessage = {
       role: 'assistant',
-      content: raw.content ?? null,
+      content: normalizeOpenRouterMessageContent(raw),
       ...(tool_calls?.length ? { tool_calls } : {}),
     };
 

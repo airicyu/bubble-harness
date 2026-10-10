@@ -115,7 +115,7 @@ export interface Harness {
   executeTool(name: string, args: Record<string, unknown>): Promise<unknown>;
 }
 
-export type AgentStopReason = 'completed' | 'max_steps';
+export type AgentStopReason = 'completed' | 'max_steps' | 'empty_final';
 
 /**
  * Observability events for a single `runAgentLoop` invocation.
@@ -143,9 +143,18 @@ export type AgentLoopEvent =
       message: ToolMessage;
     }
   | {
+      type: 'nudge';
+      step: number;
+      reason: 'empty_final';
+      /** User message appended before the empty-final retry call. */
+      message: UserMessage;
+    }
+  | {
       type: 'done';
       steps: number;
       stopReason: AgentStopReason;
+      /** Same rule as `RunAgentLoopResult.finalText`. */
+      finalText: string;
       messages: ChatMessage[];
     };
 
@@ -158,6 +167,14 @@ export interface RunAgentLoopOptions {
   systemMessage?: string;
   temperature?: number;
   maxTokens?: number;
+  /**
+   * When the model returns no `tool_calls` and empty content, append
+   * `emptyFinalUserMessage` (if provided) and call the model once more.
+   * Default false.
+   */
+  retryEmptyFinal?: boolean;
+  /** Host-authored nudge text used only when `retryEmptyFinal` is true. */
+  emptyFinalUserMessage?: string;
   /** Optional; omitted means silent. Library never writes to console. */
   onEvent?: AgentLoopEventHandler;
 }
@@ -166,4 +183,9 @@ export interface RunAgentLoopResult {
   messages: ChatMessage[];
   steps: number;
   stopReason: AgentStopReason;
+  /**
+   * Last assistant content with no `tool_calls` (trimmed).
+   * Empty string when none.
+   */
+  finalText: string;
 }

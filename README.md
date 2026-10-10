@@ -61,7 +61,7 @@ import { createHarness, runAgentLoop } from './vendor/bubble-harness.js';
 
 ## 版本與變更記錄
 
-- **當前版本**：0.2.0
+- **當前版本**：0.2.1
 - [version.md](version.md)
 - [changelog.md](changelog.md)
 

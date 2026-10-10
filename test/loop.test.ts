@@ -1,6 +1,10 @@
 import { expect, test } from 'bun:test';
-import { createHarness, runAgentLoop } from '../src/index.ts';
-import type { AgentLoopEvent } from '../src/index.ts';
+import {
+  createHarness,
+  extractFinalText,
+  runAgentLoop,
+} from '../src/index.ts';
+import type { AgentLoopEvent, ChatMessage } from '../src/index.ts';
 
 test('runAgentLoop completes after assistant message without tool_calls', async () => {
   let calls = 0;
@@ -20,7 +24,120 @@ test('runAgentLoop completes after assistant message without tool_calls', async 
 
   expect(calls).toBe(1);
   expect(result.stopReason).toBe('completed');
+  expect(result.finalText).toBe('done');
   expect(result.messages.at(-1)?.content).toBe('done');
+});
+
+test('empty final without tool_calls → empty_final', async () => {
+  const harness = createHarness({
+    kvStore: { get: () => null, set: () => {} },
+    callModel: async () => ({
+      message: { role: 'assistant', content: null },
+    }),
+  });
+
+  const result = await runAgentLoop(harness, {
+    messages: [{ role: 'user', content: 'hi' }],
+  });
+
+  expect(result.stopReason).toBe('empty_final');
+  expect(result.finalText).toBe('');
+});
+
+test('retryEmptyFinal nudges once then can complete', async () => {
+  let calls = 0;
+  const events: AgentLoopEvent['type'][] = [];
+  const harness = createHarness({
+    kvStore: { get: () => null, set: () => {} },
+    callModel: async () => {
+      calls += 1;
+      if (calls === 1) {
+        return { message: { role: 'assistant', content: '   ' } };
+      }
+      return { message: { role: 'assistant', content: 'final answer' } };
+    },
+  });
+
+  const result = await runAgentLoop(harness, {
+    messages: [{ role: 'user', content: 'hi' }],
+    retryEmptyFinal: true,
+    emptyFinalUserMessage: 'Please answer now.',
+    onEvent: (event) => {
+      events.push(event.type);
+    },
+  });
+
+  expect(calls).toBe(2);
+  expect(result.stopReason).toBe('completed');
+  expect(result.finalText).toBe('final answer');
+  expect(events).toContain('nudge');
+  expect(result.messages.some((m) => m.role === 'user' && m.content === 'Please answer now.')).toBe(
+    true,
+  );
+});
+
+test('retryEmptyFinal still empty_final after retry', async () => {
+  let calls = 0;
+  const harness = createHarness({
+    kvStore: { get: () => null, set: () => {} },
+    callModel: async () => {
+      calls += 1;
+      return { message: { role: 'assistant', content: null } };
+    },
+  });
+
+  const result = await runAgentLoop(harness, {
+    messages: [{ role: 'user', content: 'hi' }],
+    retryEmptyFinal: true,
+    emptyFinalUserMessage: 'try again',
+  });
+
+  expect(calls).toBe(2);
+  expect(result.stopReason).toBe('empty_final');
+  expect(result.finalText).toBe('');
+});
+
+test('finalText skips assistant messages that have tool_calls', () => {
+  const messages: ChatMessage[] = [
+    { role: 'user', content: 'go' },
+    {
+      role: 'assistant',
+      content: "I'll start by decoding…",
+      tool_calls: [
+        {
+          id: 'c1',
+          type: 'function',
+          function: { name: 'decode', arguments: '{}' },
+        },
+      ],
+    },
+    { role: 'tool', tool_call_id: 'c1', content: '{}' },
+    { role: 'assistant', content: '  Risk report here  ' },
+  ];
+
+  expect(extractFinalText(messages)).toBe('Risk report here');
+});
+
+test('done event includes finalText and stopReason', async () => {
+  let done: Extract<AgentLoopEvent, { type: 'done' }> | undefined;
+  const harness = createHarness({
+    kvStore: { get: () => null, set: () => {} },
+    callModel: async () => ({
+      message: { role: 'assistant', content: 'ok' },
+    }),
+  });
+
+  await runAgentLoop(harness, {
+    messages: [{ role: 'user', content: 'hi' }],
+    onEvent: (event) => {
+      if (event.type === 'done') {
+        done = event;
+      }
+    },
+  });
+
+  expect(done?.stopReason).toBe('completed');
+  expect(done?.finalText).toBe('ok');
 });
 
 test('tool failure returns structured error without stopping loop', async () => {

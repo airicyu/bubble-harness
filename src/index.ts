@@ -3,15 +3,18 @@
  */
 
 export const PACKAGE_NAME = 'bubble-harness';
-export const PACKAGE_VERSION = '0.2.0';
+export const PACKAGE_VERSION = '0.2.1';
 
 export function getVersion(): string {
   return PACKAGE_VERSION;
 }
 
 export { createHarness } from './harness.ts';
-export { runAgentLoop } from './loop.ts';
-export { createOpenRouterCallModel } from './openrouter.ts';
+export { extractFinalText, runAgentLoop } from './loop.ts';
+export {
+  createOpenRouterCallModel,
+  normalizeOpenRouterMessageContent,
+} from './openrouter.ts';
 export {
   createInProcessSandboxPorts,
   createSandboxGuest,
