@@ -3,7 +3,7 @@
  */
 
 export const PACKAGE_NAME = 'bubble-harness';
-export const PACKAGE_VERSION = '0.1.0-dev';
+export const PACKAGE_VERSION = '0.2.0';
 
 export function getVersion(): string {
   return PACKAGE_VERSION;
@@ -12,6 +12,11 @@ export function getVersion(): string {
 export { createHarness } from './harness.ts';
 export { runAgentLoop } from './loop.ts';
 export { createOpenRouterCallModel } from './openrouter.ts';
+export {
+  createInProcessSandboxPorts,
+  createSandboxGuest,
+  createSandboxHost,
+} from './sandbox.ts';
 export { SYSTEM_TOOL_NAMES, buildSystemToolDefinitions } from './tools/schemas.ts';
 export { isUrlAllowed } from './tools/system.ts';
 
@@ -39,3 +44,14 @@ export type {
   ToolMessage,
   UserMessage,
 } from './types.ts';
+
+export type {
+  SandboxClose,
+  SandboxGuestOptions,
+  SandboxHostHandlers,
+  SandboxHostToolSchema,
+  SandboxOp,
+  SandboxPort,
+  SandboxRequest,
+  SandboxResponse,
+} from './sandbox.ts';

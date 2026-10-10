@@ -2,8 +2,8 @@
 
 ← [docs/roadmap/](../README.md)
 
-**狀態：** `in progress`  
-**版本：** 0.1.0（出貨前仍為 `0.1.0-dev` 套件標籤）  
+**狀態：** `shipped`  
+**版本：** 0.1.0  
 **Changelog：** [倉庫根 changelog.md](../../../changelog.md)  
 **設計共識來源：** [docs/brainstorm/harness-design-context.md](../../brainstorm/harness-design-context.md)（與本 INDEX 衝突時以 brainstorm 為準）
 

@@ -10,7 +10,8 @@
 
 | 版本 | 狀態 | 說明 |
 |------|------|------|
-| [0.1.0](./0.1.0/INDEX.md) | in progress | 最小 harness loop + 四類工具；Bun 直接跑 TypeScript |
+| [0.1.0](./0.1.0/INDEX.md) | shipped | 最小 harness loop + 四類工具；Bun 直接跑 TypeScript |
+| [0.2.0](./0.2.0/INDEX.md) | shipped | Sandbox 邊界：guest 跑 loop，host 經 JSON port 執行有權限呼叫 |
 
 **版本號：** `X.Y.Z` 的 **patch**（例如 **0.1.1**）留給該 minor 的 **bugfix**，不排新功能。新功能走下一個 **minor**（0.1.0 → 0.2.0 → 0.3.0）。
 

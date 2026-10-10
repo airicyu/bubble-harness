@@ -46,7 +46,7 @@ bun add bubble-harness
 
 ## 版本與變更記錄
 
-- **當前版本**：0.1.0-dev（開發中）
+- **當前版本**：0.2.0
 - [version.md](version.md)
 - [changelog.md](changelog.md)
 
