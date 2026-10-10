@@ -87,10 +87,10 @@
 （該版約定的測試或手驗；記錄指令與輸出摘要）
 
 ```bash
-npm run build
+bun test
 # （結果）
 
-npm run typecheck
+bun run typecheck
 # （結果）
 ```
 

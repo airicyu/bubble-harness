@@ -2,7 +2,7 @@
 
 ← [INDEX.md](./INDEX.md)
 
-- **Node 先跑通**：Chrome sandbox 需額外 bridge，不阻塞 library 契約驗證。
+- **Bun 先跑通**：Chrome sandbox 需額外 bridge，不阻塞 library 契約驗證；開發與測試直接跑 TypeScript。
 - **OpenRouter 當 LLM 機制而非 tool**：與「query-only、宿主代打 key」一致；避免模型把「叫 LLM」當成可與 `fetch` 並列的業務 tool。
 - **Structured tool errors**：簽名風險等場景需要模型在失敗後繼續推理；throw 會中斷整條 transcript。
 - **8KB 截斷**：對齊 brainstorm，防止單次 RPC／fetch 撐爆 context。

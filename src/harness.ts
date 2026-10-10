@@ -3,13 +3,13 @@ import type {
   HarnessOptions,
   HostToolDefinition,
   ToolDefinitionForApi,
-} from './types.js';
-import { buildSystemToolDefinitions, SYSTEM_TOOL_NAMES } from './tools/schemas.js';
+} from './types.ts';
+import { buildSystemToolDefinitions, SYSTEM_TOOL_NAMES } from './tools/schemas.ts';
 import {
   defaultFetchImpl,
   executeSystemTool,
   type SystemToolContext,
-} from './tools/system.js';
+} from './tools/system.ts';
 
 const RESERVED_NAMES = new Set<string>(Object.values(SYSTEM_TOOL_NAMES));
 

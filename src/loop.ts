@@ -6,8 +6,8 @@ import type {
   RunAgentLoopResult,
   ToolCall,
   ToolMessage,
-} from './types.js';
-import { stringifyToolResult, truncateUtf8 } from './truncate.js';
+} from './types.ts';
+import { stringifyToolResult, truncateUtf8 } from './truncate.ts';
 
 export async function runAgentLoop(
   harness: Harness,

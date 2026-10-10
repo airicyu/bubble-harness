@@ -36,7 +36,8 @@ bubble-harness 是 **library**，不是完整應用程式。與 airwave-wallet�
 
 **禁止假設**：
 
-- 不假設 Node.js filesystem、child_process、shell
+- 開發與測試只用 **Bun**（`bun install` / `bun test` / 直接跑 `.ts`）
+- 不假設 filesystem、child_process、shell；函式庫源碼只用 Web 標準 API
 - 不假設 host 會提供 vault / 密碼 / 私鑰給 harness
 - 不假設 harness 能直接呼叫 `chrome.storage` 或 extension API
 
@@ -63,10 +64,10 @@ Roadmap 文件、範例程式、測試案例 **禁止**包含：
 
 ## 現狀
 
-本專案目前為初始腳手架階段：
+本專案目前為 0.1.0-dev：最小 agent loop 已可在 Bun 執行。
 
-- 版本 0.1.0-dev（尚未實作 agent loop）
-- Roadmap 結構已建立，待後續與使用者討論設計後執行版本開發
+- 開發／測試／範例只用 Bun，入口為 `src/index.ts`（無 `dist/`）
+- Chrome sandbox 宿主適配仍延後
 
 Agent 在開工前應確認：
 

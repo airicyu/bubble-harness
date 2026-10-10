@@ -13,7 +13,7 @@ Airwave Wallet 簽名前要風險解讀。POC／0.28.0 路線是「確定性 fla
 
 ## What
 
-- 獨立 npm library；錢包是第一個宿主，但不綁死。
+- 獨立 JS library（以 Bun 開發）；錢包是第一個宿主，但不綁死。
 - Query-only；無簽名／私鑰／auto-approve。
 - 瘦 sandbox（無 chrome.*）；宿主注入窄介面。
 - 與 wallet flags 快路徑並行。
@@ -55,14 +55,14 @@ rpc_read 候選 allowlist：getBalance、getMultipleAccounts、getAccountInfo、
 
 ## 已拍板（給 0.1.0）
 
-1. Node 先跑通 loop；Chrome sandbox 橋延後。  
+1. Bun 先跑通 loop；Chrome sandbox 橋延後。  
 2. System tools = kv + memory + fetch；OpenRouter 是 LLM 機制。  
 3. Host register tools。  
 4. OpenRouter tool calling 如上。  
 5. maxSteps=8、≈8KB 截斷。  
 6. 錯誤：工具失敗回傳結構化 error（勿裸 throw 弄死 loop）— 建議 `{ ok:false, error }`。  
 7. callModel：至少 messages + tools；temperature／maxTokens 可選。  
-8. examples/：建議最小 Node 範例。  
+8. examples/：建議最小 Bun 範例（直接跑 TypeScript）。  
 9. 本版**要實作**最小 loop（非僅 stub）；舊 INDEX「不做完整 loop」以本檔為準覆寫。
 
 ## 延後

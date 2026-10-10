@@ -1,4 +1,4 @@
-import type { AssistantMessage, CallModelFn, ToolCall } from './types.js';
+import type { AssistantMessage, CallModelFn, ToolCall } from './types.ts';
 
 export interface OpenRouterCallModelOptions {
   apiKey: string;

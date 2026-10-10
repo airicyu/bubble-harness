@@ -11,7 +11,7 @@
 **Agent harness**：執行 agent 推理迴圈的輕量框架。  
 本專案的 harness 設計用於 **受限 JavaScript 環境**（例如 Chrome extension manifest sandbox），因此：
 
-- 不依賴 Node.js 專屬 API（filesystem、child_process、stdio）
+- 不依賴 Node 專屬 API（filesystem、child_process、stdio）；開發工具鏈為 Bun
 - 工具限四類（見下）
 - 不直接呼叫平台 API（如 `chrome.storage`），改由 host 注入介面
 

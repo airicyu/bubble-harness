@@ -9,11 +9,11 @@ export function getVersion(): string {
   return PACKAGE_VERSION;
 }
 
-export { createHarness } from './harness.js';
-export { runAgentLoop } from './loop.js';
-export { createOpenRouterCallModel } from './openrouter.js';
-export { SYSTEM_TOOL_NAMES, buildSystemToolDefinitions } from './tools/schemas.js';
-export { isUrlAllowed } from './tools/system.js';
+export { createHarness } from './harness.ts';
+export { runAgentLoop } from './loop.ts';
+export { createOpenRouterCallModel } from './openrouter.ts';
+export { SYSTEM_TOOL_NAMES, buildSystemToolDefinitions } from './tools/schemas.ts';
+export { isUrlAllowed } from './tools/system.ts';
 
 export type {
   AgentStopReason,
@@ -38,4 +38,4 @@ export type {
   ToolDefinitionForApi,
   ToolMessage,
   UserMessage,
-} from './types.js';
+} from './types.ts';

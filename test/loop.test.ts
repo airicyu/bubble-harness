@@ -1,6 +1,5 @@
-import assert from 'node:assert/strict';
-import { test } from 'node:test';
-import { createHarness, runAgentLoop } from '../dist/index.js';
+import { expect, test } from 'bun:test';
+import { createHarness, runAgentLoop } from '../src/index.ts';
 
 test('runAgentLoop completes after assistant message without tool_calls', async () => {
   let calls = 0;
@@ -18,9 +17,9 @@ test('runAgentLoop completes after assistant message without tool_calls', async 
     messages: [{ role: 'user', content: 'hi' }],
   });
 
-  assert.equal(calls, 1);
-  assert.equal(result.stopReason, 'completed');
-  assert.equal(result.messages.at(-1)?.content, 'done');
+  expect(calls).toBe(1);
+  expect(result.stopReason).toBe('completed');
+  expect(result.messages.at(-1)?.content).toBe('done');
 });
 
 test('tool failure returns structured error without stopping loop', async () => {
@@ -58,7 +57,7 @@ test('tool failure returns structured error without stopping loop', async () => 
         };
       }
       const lastTool = messages.filter((m) => m.role === 'tool').pop();
-      assert.match(lastTool.content, /"ok":false/);
+      expect(lastTool?.content).toMatch(/"ok":false/);
       return { message: { role: 'assistant', content: 'recovered' } };
     },
   });
@@ -66,8 +65,8 @@ test('tool failure returns structured error without stopping loop', async () => 
   const result = await runAgentLoop(harness, {
     messages: [{ role: 'user', content: 'test' }],
   });
-  assert.equal(result.stopReason, 'completed');
-  assert.equal(result.steps, 2);
+  expect(result.stopReason).toBe('completed');
+  expect(result.steps).toBe(2);
 });
 
 test('tool results are truncated when oversized', async () => {
@@ -110,5 +109,5 @@ test('tool results are truncated when oversized', async () => {
     messages: [{ role: 'user', content: 'go' }],
   });
   const toolMsg = result.messages.find((m) => m.role === 'tool');
-  assert.ok(toolMsg.content.includes('...[truncated]'));
+  expect(toolMsg?.content.includes('...[truncated]')).toBe(true);
 });

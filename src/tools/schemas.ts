@@ -1,4 +1,4 @@
-import type { JsonSchemaObject, ToolDefinitionForApi } from '../types.js';
+import type { JsonSchemaObject, ToolDefinitionForApi } from '../types.ts';
 
 const keyValueGetSchema: JsonSchemaObject = {
   type: 'object',

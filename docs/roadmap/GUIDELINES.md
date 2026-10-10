@@ -175,7 +175,7 @@ bubble-harness 是為受限 JavaScript 環境設計的 **agent harness library**
 1. **KV store 由 host 注入。** Harness 不直接呼叫 `chrome.storage` 或其他平台 API；儲存介面由 host bridge 提供。
 2. **僅四類工具。** 不提供 filesystem、shell、arbitrary MCP stdio 工具；與「受限環境」定位衝突的能力不應進主路徑。
 3. **不持有密碼或私鑰。** Harness 不讀、不寫、不接觸 vault；安全責任屬於 host。
-4. **設計上可在瀏覽器運行。** 避免依賴 Node.js 專屬 API（例如 `fs`、`child_process`）；若需用到僅 Node.js 有的能力（例如測試工具），須在文件標明並與 runtime code 分離。
+4. **設計上可在瀏覽器運行。** 避免依賴 Node 專屬 API（例如 `fs`、`child_process`）。開發與測試只用 **Bun**（`bun test`、直接執行 `.ts`）；勿把 Node／npm 當專案工具鏈。
 
 INDEX 可以收窄範圍（例如本版不做 MCP client），不可以悄悄加入違反定位的能力來「先跑起來」。要推翻某條原則，必須寫進該版已定案並說明取代模型。
 
@@ -185,7 +185,7 @@ INDEX 可以收窄範圍（例如本版不做 MCP client），不可以悄悄加
 |------|------|
 | Changelog | 倉庫根 `changelog.md` |
 | 版本號 | 與該版目錄 `X.Y.Z` 一致；`package.json` 的 `version` 與 changelog 對齊 |
-| 測試 | 某版引入測試 runner 時，在該版已定案寫明指令（含 cwd），並回寫本表。在那之前，每個 Track 的驗收以該版 INDEX 的手驗或窄測為準 |
+| 測試 | `bun test`（直接測 `src/` TypeScript）。某版若另有手驗，寫在該版 INDEX |
 | 實作範圍 | 只改 `bubble-harness` 倉庫 |
 
 ### 第一天就要對的事

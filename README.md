@@ -4,50 +4,51 @@
 
 bubble-harness 是一個簡潔的 agent 執行框架，專為無法存取檔案系統、shell 或 stdio MCP 的 JavaScript 環境（例如 Chrome extension sandbox）設計。它採用 pi-agent 風格的簡單迴圈，提供最小但足夠的工具介面。
 
+本倉庫 **只用 Bun**：套件管理、測試、範例皆直接跑 TypeScript 源碼，沒有 `dist/` 編譯步驟，也不使用 npm／Node CLI。
+
 ## 非目標
 
 - **不是**完整的桌面級 agent 框架
 - **不提供** filesystem / shell / stdio MCP 工具
 - **不持有**私鑰或密碼
-- **不依賴** Node.js 特定 API（設計上可在瀏覽器執行環境運行）
+- **不依賴** Node 專屬 API（`fs`、`child_process` 等）；runtime 只用 Web 標準（例如 `fetch`）
 
-## 計畫中的工具介面
+## 工具介面
 
-Harness 將支援以下四類工具：
-
-1. **Key-value store interface**：由 host 注入的儲存介面操作
-2. **Temporary in-memory variables**：執行期間的暫存變數
+1. **Key-value store**：由 host 注入
+2. **Temporary in-memory variables**：單次執行暫存
 3. **Web fetch**：HTTP(S) 請求
-4. **Model calls via OpenRouter**：經由 OpenRouter HTTP API 呼叫模型
+4. **Model calls via OpenRouter**：由宿主注入的 `callModel`（可選 `createOpenRouterCallModel`）
 
-## 消費方式
-
-bubble-harness 設計為 npm library，供其他專案（例如 airwave-wallet）作為依賴項安裝：
+## 開發
 
 ```bash
-npm install bubble-harness
+bun install
+bun run typecheck
+bun test
+bun run example
 ```
 
-Host 應用程式負責：
-- 注入 KV store 實作
-- 在隔離環境（例如 manifest sandbox）中初始化 harness
-- 確保 harness 無法存取應用程式的 vault 或敏感 API
+其他專案安裝：
+
+```bash
+bun add bubble-harness
+```
+
+套件入口為 `src/index.ts`。Host 負責注入 KV store、在隔離環境初始化 harness，並確保 harness 無法存取 vault。
 
 ## Roadmap 與開發節奏
 
-本專案遵循 [docs/roadmap/](docs/roadmap/) 定義的版本化開發流程。實作前請閱讀：
-
-- [docs/roadmap/GUIDELINES.md](docs/roadmap/GUIDELINES.md)：文件自足原則、架構禁區
-- [docs/roadmap/agent-workflow.md](docs/roadmap/agent-workflow.md)：設計審查、Track 實作、驗收流程
-- Agent 規則見倉庫根 [AGENTS.md](AGENTS.md)
-
-構想與待辦項目見 [docs/roadmap/backlog/INDEX.md](docs/roadmap/backlog/INDEX.md)。
+- [docs/roadmap/GUIDELINES.md](docs/roadmap/GUIDELINES.md)
+- [docs/roadmap/agent-workflow.md](docs/roadmap/agent-workflow.md)
+- [AGENTS.md](AGENTS.md)
+- [docs/roadmap/backlog/INDEX.md](docs/roadmap/backlog/INDEX.md)
 
 ## 版本與變更記錄
 
 - **當前版本**：0.1.0-dev（開發中）
-- 版本詳情：[version.md](version.md)
-- 變更記錄：[changelog.md](changelog.md)
+- [version.md](version.md)
+- [changelog.md](changelog.md)
 
 ## 授權
 

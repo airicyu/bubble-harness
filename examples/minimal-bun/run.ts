@@ -1,19 +1,20 @@
 /**
- * Minimal Node example: mock LLM by default; pass --live for OpenRouter.
+ * Minimal Bun example: OpenRouter by default; pass --mock for a scripted LLM.
  *
- *   npm run build
- *   node examples/minimal-node/run.mjs
- *   OPENROUTER_API_KEY=sk-or-... node examples/minimal-node/run.mjs --live
+ *   bun examples/minimal-bun/run.ts
+ *   bun examples/minimal-bun/run.ts --mock
+ *   (live: set OPENROUTER_API_KEY in repo-root .env)
  */
 
 import {
   createHarness,
   createOpenRouterCallModel,
   runAgentLoop,
-} from '../../dist/index.js';
+} from '../../src/index.ts';
+import type { CallModelFn, ChatMessage } from '../../src/index.ts';
 
-const live = process.argv.includes('--live');
-const kv = new Map();
+const mock = Bun.argv.includes('--mock');
+const kv = new Map<string, string>();
 
 const harness = createHarness({
   kvStore: {
@@ -36,11 +37,11 @@ const harness = createHarness({
       },
       execute: async ({ message }) => ({
         ok: true,
-        echo: `ECHO:${message}`,
+        echo: `ECHO:${String(message)}`,
       }),
     },
   ],
-  callModel: live ? createLiveCallModel() : createMockCallModel(),
+  callModel: mock ? createMockCallModel() : createLiveCallModel(),
 });
 
 const result = await runAgentLoop(harness, {
@@ -58,17 +59,17 @@ console.log('steps:', result.steps);
 console.log('final assistant:', findLastAssistantContent(result.messages));
 console.log('kv after run:', [...kv.entries()]);
 
-function findLastAssistantContent(messages) {
+function findLastAssistantContent(messages: ChatMessage[]): string | null {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const m = messages[i];
-    if (m.role === 'assistant' && m.content) {
+    if (m?.role === 'assistant' && m.content) {
       return m.content;
     }
   }
   return null;
 }
 
-function createMockCallModel() {
+function createMockCallModel(): CallModelFn {
   let turn = 0;
   return async () => {
     turn += 1;
@@ -99,13 +100,13 @@ function createMockCallModel() {
   };
 }
 
-function createLiveCallModel() {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+function createLiveCallModel(): CallModelFn {
+  const apiKey = Bun.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    console.error('OPENROUTER_API_KEY is required for --live');
-    process.exit(1);
+    console.error('OPENROUTER_API_KEY is required (set it in .env, or pass --mock)');
+    throw new Error('OPENROUTER_API_KEY is required (set it in .env, or pass --mock)');
   }
-  const model = process.env.OPENROUTER_MODEL ?? 'openai/gpt-4o-mini';
+  const model = Bun.env.OPENROUTER_MODEL ?? 'deepseek/deepseek-chat';
   return createOpenRouterCallModel({
     apiKey,
     model,

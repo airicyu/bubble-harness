@@ -10,7 +10,7 @@ import {
   createHarness,
   createOpenRouterCallModel,
   SYSTEM_TOOL_NAMES,
-} from 'bubble-harness';
+} from 'bubble-harness'; // 解析至 src/index.ts
 ```
 
 ### `createHarness(options)`
@@ -19,7 +19,7 @@ import {
 |------|------|------|
 | `kvStore` | 是 | `{ get(key), set(key, value) }`，可 async |
 | `callModel` | 是 | 見下 |
-| `fetchImpl` | 否 | 預設 `globalThis.fetch`（Node 18+） |
+| `fetchImpl` | 否 | 預設 `globalThis.fetch` |
 | `fetchAllowlist` | 否 | 字串前綴或 `RegExp`；未設定則不檢查 |
 | `hostTools` | 否 | 宿主工具陣列 |
 | `maxSteps` | 否 | 預設 `8` |
@@ -64,7 +64,7 @@ Tool message：`{ role: 'tool', tool_call_id, content: string }`。
 
 `createOpenRouterCallModel({ apiKey, model, baseUrl?, fetch? })` 回傳 `CallModelFn`。  
 POST `https://openrouter.ai/api/v1/chat/completions`（或 `baseUrl`）。  
-**不在 harness 內讀環境變數**；example 可從 `process.env.OPENROUTER_API_KEY` 讀取後傳入。
+**不在 harness 內讀環境變數**；example 可從 `Bun.env.OPENROUTER_API_KEY` 讀取後傳入。
 
 ## 禁止
 

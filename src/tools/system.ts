@@ -3,8 +3,8 @@ import type {
   FetchImpl,
   FetchRequest,
   KVStore,
-} from '../types.js';
-import { SYSTEM_TOOL_NAMES } from './schemas.js';
+} from '../types.ts';
+import { SYSTEM_TOOL_NAMES } from './schemas.ts';
 
 export function isUrlAllowed(url: string, allowlist?: FetchAllowlistEntry[]): boolean {
   if (!allowlist || allowlist.length === 0) {

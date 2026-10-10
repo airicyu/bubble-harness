@@ -24,8 +24,8 @@ filesystem、shell、chrome.*、vault、wallet tools 進本 package。
 ## 完成檢查
 
 - INDEX 驗收全勾
-- `npm run build && npm run typecheck`
-- `node examples/minimal-node/run.mjs`
+- `bun run typecheck && bun test`
+- `bun examples/minimal-bun/run.ts`
 
 ---
 
@@ -35,8 +35,8 @@ filesystem、shell、chrome.*、vault、wallet tools 進本 package。
 你是 bubble-harness 0.1.0 實作 agent。請只讀：
 docs/roadmap/0.1.0/INDEX.md、HOW.md、docs/brainstorm/harness-design-context.md、AGENTS.md。
 
-目標：實作 runAgentLoop、system tools、宿主 tools、createOpenRouterCallModel（可選），以及 examples/minimal-node。
+目標：實作 runAgentLoop、system tools、宿主 tools、createOpenRouterCallModel（可選），以及 examples/minimal-bun。
 遵守 HOW 的截斷與 { ok: false, error } 契約。勿做 Chrome／wallet 整合。
-驗收：npm run build、npm run typecheck、example 可跑。
+驗收：bun run typecheck、bun test、example 可跑。開發只用 Bun，勿引入 Node／npm／dist 編譯。
 Do not commit unless the user asks.
 ```
